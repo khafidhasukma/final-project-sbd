@@ -1,61 +1,88 @@
-<?php include '../components/header.php'; ?>
-<div class="mt-5">
-  <div class="d-flex justify-content-between align-items-center flex-wrap">
+<?php
+session_start();
+include '../components/header.php';
+include '../config/koneksi.php';
+?>
+
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center">
     <div>
-      <h1 class="fs-3 fw-bold">Daftar Stok</h1>
-      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Unde pariatur veritatis culpa.</p>
+      <h1 class="fs-3 fw-bold">Daftar Stok Barang</h1>
+      <p>Berikut adalah daftar stok barang saat ini.</p>
     </div>
-    <a href="/stok/create.php" class="btn btn-primary">Tambah Data</a>
+    <a href="create-edit.php" class="btn btn-primary">Tambah Data</a>
   </div>
-  <div class="table-responsive mt-5">
-    <table class="table">
-      <thead>
+
+  <!-- Alert Success (session-based) -->
+  <?php if (isset($_SESSION['success'])): ?>
+  <div id="alert-success" class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <?php endif; ?>
+
+
+  <div class="table-responsive mt-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">Kode Barang</th>
-          <th scope="col">Nama</th>
-          <th scope="col">Satuan</th>
-          <th scope="col">Jumlah Stok</th>
-          <th scope="col">Aksi</th>
+          <th>#</th>
+          <th>Kode Barang</th>
+          <th>Nama Barang</th>
+          <th>Satuan</th>
+          <th>Jumlah Stok</th>
+          <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
+        <?php
+        $result = $conn->query("SELECT * FROM stok");
+        $no = 1;
+        if ($result->num_rows > 0):
+          while ($row = $result->fetch_assoc()):
+        ?>
         <tr>
-          <th scope="row">1</th>
-          <td>BRG001</td>
-          <td>Laptop</td>
-          <td>12</td>
-          <td>20</td>
+          <td><?= $no++ ?></td>
+          <td><?= $row['kode_brg'] ?></td>
+          <td><?= $row['nama_brg'] ?></td>
+          <td><?= $row['satuan'] ?></td>
+          <td><?= $row['jml_stok'] ?></td>
           <td>
-            <div class="d-flex gap-2 align-items-center">
-              <a href="#" class="btn btn-sm btn-primary">Edit</a>
-              <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Hapus
-              </button>
-            </div>
+            <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
+            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+              data-bs-target="#deleteModal<?= $row['kode_brg'] ?>">
+              Hapus
+            </button>
           </td>
         </tr>
+
+        <!-- Modal Hapus -->
+        <div class="modal fade" id="deleteModal<?= $row['kode_brg'] ?>" tabindex="-1"
+          aria-labelledby="deleteModalLabel<?= $row['kode_brg'] ?>" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel<?= $row['kode_brg'] ?>">Hapus Data?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <?php endwhile; else: ?>
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">Belum ada data stok barang.</td>
+        </tr>
+        <?php endif; ?>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Modal Hapus -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Data?</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Apakah Anda yakin ingin menghapus data?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-danger">Hapus</button>
-      </div>
-    </div>
-  </div>
-</div>
 <?php include '../components/footer.php'; ?>
