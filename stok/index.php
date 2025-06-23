@@ -26,7 +26,7 @@ include '../config/koneksi.php';
     <table class="table table-bordered">
       <thead class="table-light">
         <tr>
-          <th>#</th>
+          <th>No</th>
           <th>Kode Barang</th>
           <th>Nama Barang</th>
           <th>Satuan</th>

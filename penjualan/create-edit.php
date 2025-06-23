@@ -1,8 +1,8 @@
 <?php include '../components/header.php'; ?>
   <div class="container">
     <div class="mt-5">
-      <h1 class="fs-3 fw-bold">Tambah Penjualan</h1>
-      <p>Isi form berikut untuk menambahkan data penjualan baru.</p>
+      <h1 class="fs-3 fw-bold">Tambah Transaksi Penjualan</h1>
+      <p>Isi form berikut untuk menambahkan Transaksi Penjualan baru.</p>
 
       <div class="card overflow-hidden mt-4">
         <div class="card-body pt-0 bg-light">
