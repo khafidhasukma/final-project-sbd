@@ -18,7 +18,7 @@ body {
 }
 
 .text-muted {
-  color: #95B1EE !important;
+  color: gray !important;
 }
 
 /* Hover untuk tombol "Kelola Stok" */
@@ -52,4 +52,88 @@ body {
 
 .icon-penjualan {
   color: #E7F1A8;
+}
+.fullpage-landing {
+    height: 100%;
+    overflow: auto;
+    width: 100%;
+    background-image: url('/img/web.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center right;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .dashboard-container {
+    color: #506bb0;
+    z-index: 3;
+    position: relative;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    width: 100%;
+  }
+
+  html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      /* overflow: hidden; */
+    }
+
+    .navbar {
+      background-color: white;
+      padding: 10px;
+    }
+
+    .nav-pills .nav-link {
+      color: black;
+      margin: 0 2px;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      padding: 8px 20px;
+    }
+
+    .nav-pills .nav-link:hover {
+      background-color: #95B1EE ;
+      color: white !important;
+      border-color: #95B1EE;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    .nav-pills .nav-link.active {
+      background-color: #6b91e4;
+      color: white !important;
+      border-color: #95B1EE;
+    }
+
+    
+    .landing-text {
+    color: #506bb0;
+    font-size: 3rem; /* Ukuran besar */
+    font-weight: bold;
+    position: absolute;
+    top: 25%;
+    left: 11.5%;
+    transform: translateY(-50%);
+    z-index: 2;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.2); /* Biar makin jelas */
+    }
+
+.breadcrumb-item a {
+  text-decoration: none !important;
+  color: #6b91e4 !important;
 }

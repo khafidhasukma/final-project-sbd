@@ -5,7 +5,7 @@
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
   <!-- Custom style -->
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="/assets/style.css">
 
   <style>
     /* Fonts */
@@ -14,5 +14,7 @@
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-  </style>
+  </style
 </head>
+
+<?php include __DIR__ . '/navbar.php'; ?>

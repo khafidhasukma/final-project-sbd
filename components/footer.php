@@ -1,6 +1,6 @@
 </div> <!-- /container -->
 
-<footer class="bg-light text-center mt-5 py-3">
+<footer class="bg-light text-center py-3">
   <small>&copy; <?= date('Y') ?> Inventory App. All rights reserved.</small>
 </footer>
 
