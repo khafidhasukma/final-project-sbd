@@ -22,25 +22,106 @@ $data = $result->fetch_assoc();
 ?>
 
 <div class="container mt-5">
-  <h1 class="fs-3 fw-bold">Detail Transaksi Penjualan</h1>
-  <div class="card mt-4">
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-4">Kode Transaksi</dt>
-        <dd class="col-sm-8"><?= $data['kd_trans'] ?></dd>
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="text-center mb-4">
+        <h1 class="fs-2 fw-bold mb-2" style="color: #364C84;">Detail Transaksi Penjualan</h1>
+        <p class="text-muted">Informasi lengkap transaksi penjualan</p>
+      </div>
 
-        <dt class="col-sm-4">Tanggal Transaksi</dt>
-        <dd class="col-sm-8"><?= $data['tgl_trans'] ?></dd>
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom-0 py-4">
+          <div class="d-flex align-items-center">
+            <div class="bg-light rounded-circle p-3 me-3">
+              <i class="fas fa-receipt" style="color: #95B1EE; font-size: 1.5rem;"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-1 fw-bold">Transaksi <?= $data['kd_trans'] ?></h5>
+              <p class="text-muted mb-0">Detail informasi penjualan barang</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-body py-4">
+          <div class="row g-4">
+            <!-- Kode Transaksi -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="me-3">
+                  <i class="fas fa-hashtag" style="color: #95B1EE;"></i>
+                </div>
+                <div>
+                  <small class="text-muted d-block">Kode Transaksi</small>
+                  <strong class="fs-6"><?= $data['kd_trans'] ?></strong>
+                </div>
+              </div>
+            </div>
 
-        <dt class="col-sm-4">Kode Barang</dt>
-        <dd class="col-sm-8"><?= $data['kode_brg'] ?> - <?= $data['nama_brg'] ?></dd>
+            <!-- Tanggal Transaksi -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="me-3">
+                  <i class="fas fa-calendar-alt" style="color: #95B1EE;"></i>
+                </div>
+                <div>
+                  <small class="text-muted d-block">Tanggal Transaksi</small>
+                  <strong class="fs-6"><?= date('d F Y', strtotime($data['tgl_trans'])) ?></strong>
+                </div>
+              </div>
+            </div>
 
-        <dt class="col-sm-4">Jumlah Jual</dt>
-        <dd class="col-sm-8"><?= $data['jml_jual'] ?></dd>
-      </dl>
-    </div>
-    <div class="card-footer text-end">
-      <a href="index.php" class="btn btn-secondary">Kembali</a>
+            <!-- Kode Barang -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="me-3">
+                  <i class="fas fa-box" style="color: #E7F1A8;"></i>
+                </div>
+                <div>
+                  <small class="text-muted d-block">Kode Barang</small>
+                  <strong class="fs-6"><?= $data['kode_brg'] ?></strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nama Barang -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="me-3">
+                  <i class="fas fa-tag" style="color: #E7F1A8;"></i>
+                </div>
+                <div>
+                  <small class="text-muted d-block">Nama Barang</small>
+                  <strong class="fs-6"><?= $data['nama_brg'] ?></strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Jumlah Jual -->
+            <div class="col-12">
+              <div class="d-flex align-items-center justify-content-center p-4 rounded" style="background: linear-gradient(45deg, #95B1EE20, #E7F1A820);">
+                <div class="text-center">
+                  <div class="mb-2">
+                    <i class="fas fa-shopping-cart" style="color: #364C84; font-size: 2rem;"></i>
+                  </div>
+                  <small class="text-muted d-block">Jumlah Terjual</small>
+                  <h3 class="fw-bold mb-0" style="color: #364C84;"><?= $data['jml_jual'] ?> <small class="fs-6 text-muted">unit</small></h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-footer bg-white border-top-0 py-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted">
+              <small><i class="fas fa-info-circle me-1"></i> Data transaksi penjualan</small>
+            </div>
+            <a href="index.php" class="btn btn-outline-primary px-4 py-2">
+              <i class="fas fa-arrow-left me-2"></i>Kembali
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
