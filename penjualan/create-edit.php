@@ -11,6 +11,9 @@ $data = [
   'jml_jual' => '',
 ];
 
+// Ambil daftar barang
+$barangList = $conn->query("SELECT * FROM stok")->fetch_all(MYSQLI_ASSOC);
+
 if ($isEdit) {
   $transaksi = $_GET['transaksi'];
   $result = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$transaksi'");
@@ -25,7 +28,9 @@ if ($isEdit) {
 
 <div class="container mt-5">
   <h1 class="fs-3 fw-bold"><?= $isEdit ? 'Edit Transaksi Penjualan' : 'Tambah Transaksi Penjualan' ?></h1>
-  <p><?= $isEdit ? 'Ubah data Transaksi Penjualan berikut.' : 'Isi form berikut untuk menambahkan data Transaksi Penjualan baru.' ?></p>
+  <p>
+    <?= $isEdit ? 'Ubah data Transaksi Penjualan berikut.' : 'Isi form berikut untuk menambahkan data Transaksi Penjualan baru.' ?>
+  </p>
 
   <!-- Alert Error -->
   <?php if (isset($_SESSION['error'])): ?>
@@ -40,32 +45,35 @@ if ($isEdit) {
       <form action="<?= $isEdit ? 'update.php' : 'store.php' ?>" method="POST" class="mt-4">
         <div class="mb-3">
           <label for="kd_trans" class="form-label">Kode Transaksi</label>
-          <input type="text" class="form-control" id="kd_trans" name="kd_trans" placeholder="Masukkan kode Transaksi Penjualan..."
-            value="<?= htmlspecialchars($data['kd_trans']) ?>" <?= $isEdit ? 'readonly' : 'required' ?> />
+          <input type="text" class="form-control" id="kd_trans" name="kd_trans"
+            placeholder="Masukkan kode Transaksi Penjualan..." value="<?= htmlspecialchars($data['kd_trans']) ?>"
+            <?= $isEdit ? 'readonly' : 'required' ?> />
         </div>
 
         <div class="mb-3">
-                <label for="tgl_trans" class="form-label">Tanggal Transaksi</label>
-                <input type="date" class="form-control" placeholder="Masukkan tanggal transaksi..." id="tgl_trans" name="tgl_trans" required />
-              </div>
-              <div class="mb-3">
-                <label for="kode_brg" class="form-label">Kode Barang</label>
-                <select name="kode_brg" class="form-control">
-    <option value="">-- Pilih Kode Barang --</option>
-    <?php echo '<pre>';
-          print_r($barangList);
-          echo '</pre>';
-          foreach ($barangList as $barang): ?>
-    <option value="<?= $barang['kode_brg'] ?>">
-        <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
-    </option>
-<?php endforeach; ?>
-</select>
-              </div>
-              <div class="mb-3">
-                <label for="jml_jual" class="form-label">Jumlah Jual</label>
-                <input type="number" class="form-control" placeholder="Masukkan jumlah jual..." id="jml_jual" name="jml_jual" required />
-              </div>
+          <label for="tgl_trans" class="form-label">Tanggal Transaksi</label>
+          <input type="date" class="form-control" id="tgl_trans" name="tgl_trans"
+            value="<?= htmlspecialchars($data['tgl_trans']) ?>" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="kode_brg" class="form-label">Kode Barang</label>
+          <select name="kode_brg" id="kode_brg" class="form-control" required>
+            <option value="">-- Pilih Kode Barang --</option>
+            <?php foreach ($barangList as $barang): ?>
+            <option value="<?= $barang['kode_brg'] ?>"
+              <?= ($data['kode_brg'] == $barang['kode_brg']) ? 'selected' : '' ?>>
+              <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
+            </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="jml_jual" class="form-label">Jumlah Jual</label>
+          <input type="number" class="form-control" id="jml_jual" name="jml_jual" placeholder="Masukkan jumlah jual..."
+            value="<?= htmlspecialchars($data['jml_jual']) ?>" required />
+        </div>
 
         <div class="d-flex justify-content-end mt-5">
           <button type="submit" class="btn btn-success"><?= $isEdit ? 'Simpan Perubahan' : 'Simpan' ?></button>
