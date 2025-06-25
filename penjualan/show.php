@@ -125,8 +125,7 @@ $data = $result->fetch_assoc();
             <div class="text-muted">
               <small><i class="fas fa-info-circle me-1"></i> Data transaksi penjualan</small>
             </div>
-            <a href="index.php" class="btn btn-outline-primary px-4 py-2">
-              <i class="fas fa-arrow-left me-2"></i>Kembali
+            <a href="index.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Kembali</a>
             </a>
           </div>
         </div>
