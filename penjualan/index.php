@@ -56,6 +56,7 @@ include '../config/koneksi.php';
           <td><?= $row['kode_brg'] ?></td>
           <td><?= $row['jml_jual'] ?></td>
           <td>
+            <a href="show.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
               data-bs-target="#deleteModal<?= $row['kd_trans'] ?>">
