@@ -1,0 +1,55 @@
+body {
+  background-color: #FFFDF5;
+  color: #364C84;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(149, 177, 238, 0.2); /* Light blue shadow */
+}
+
+.card-title {
+  color: #364C84;
+}
+
+.text-muted {
+  color: #95B1EE !important;
+}
+
+/* Hover untuk tombol "Kelola Stok" */
+.btn-outline-primary {
+  color: #364C84;
+  border-color: #95B1EE;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: #95B1EE;
+  color: white;
+}
+
+/* Hover untuk tombol "Kelola Penjualan" */
+.btn-outline-success {
+  color: #364C84;
+  border-color: #E7F1A8;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-success:hover {
+  background-color: #E7F1A8;
+  color: #364C84;
+}
+
+/* Icon warna agar sesuai palet */
+.icon-stok {
+  color: #95B1EE;
+}
+
+.icon-penjualan {
+  color: #E7F1A8;
+}
