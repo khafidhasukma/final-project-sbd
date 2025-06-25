@@ -48,6 +48,7 @@ include '../config/koneksi.php';
           <td><?= $row['satuan'] ?></td>
           <td><?= $row['jml_stok'] ?></td>
           <td>
+            <a href="show.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
               data-bs-target="#deleteModal<?= $row['kode_brg'] ?>">
