@@ -22,7 +22,16 @@ $data = $result->fetch_assoc();
 ?>
 
 <div class="container mt-5">
-  <div class="row justify-content-center">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-5">
+    <ol class="breadcrumb align-items-center">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/stok/index.php">Daftar Transaksi Penjualan</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Detail Transaksi Penjualan</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center mb-5">
     <div class="col-lg-8 col-md-10">
       <div class="text-center mb-4">
         <h1 class="fs-2 fw-bold mb-2" style="color: #364C84;">Detail Transaksi Penjualan</h1>

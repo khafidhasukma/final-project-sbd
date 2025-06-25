@@ -27,7 +27,16 @@ if ($isEdit) {
 ?>
 
 <div class="container mt-5">
-  <h1 class="fs-3 fw-bold"><?= $isEdit ? 'Edit Transaksi Penjualan' : 'Tambah Transaksi Penjualan' ?></h1>
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-5">
+    <ol class="breadcrumb align-items-center">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/penjualan/index.php">Daftar Penjualan</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><?= $isEdit ? 'Edit Penjualan' : 'Tambah Penjualan' ?></li>
+    </ol>
+  </nav>
+
+  <h1 class="fs-3 fw-bold"><?= $isEdit ? 'Edit Penjualan' : 'Tambah Penjualan' ?></h1>
   <p>
     <?= $isEdit ? 'Ubah data Transaksi Penjualan berikut.' : 'Isi form berikut untuk menambahkan data Transaksi Penjualan baru.' ?>
   </p>

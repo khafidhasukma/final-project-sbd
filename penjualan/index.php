@@ -5,12 +5,20 @@ include '../config/koneksi.php';
 ?>
 
 <div class="container mt-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-5">
+    <ol class="breadcrumb align-items-center">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Daftar Transaksi Penjualan</li>
+    </ol>
+  </nav>
+
   <div class="d-flex justify-content-between align-items-center">
     <div>
       <h1 class="fs-3 fw-bold">Daftar Transaksi Penjualan</h1>
       <p>Berikut adalah daftar transaksi penjualan saat ini.</p>
     </div>
-    <a href="create-edit.php" class="btn btn-primary">Tambah Transaksi</a>
+    <a href="create-edit.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Tambah Transaksi</a>
   </div>
 
   <!-- Alert Success (session-based) -->
@@ -23,7 +31,7 @@ include '../config/koneksi.php';
 
 
   <div class="table-responsive mt-4">
-    <table class="table table-bordered">
+    <table class="table table-bordered bg-white shadow-sm">
       <thead class="table-light">
         <tr>
           <th>No</th>
@@ -47,7 +55,7 @@ include '../config/koneksi.php';
           <td><?= $row['tgl_trans'] ?></td>
           <td><?= $row['kode_brg'] ?></td>
           <td><?= $row['jml_jual'] ?></td>
-          <td>
+          <td class="d-flex gap-2 align-items-center">
             <a href="show.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
@@ -66,7 +74,8 @@ include '../config/koneksi.php';
                 <h1 class="modal-title fs-5" id="deleteModalLabel<?= $row['kd_trans'] ?>">Hapus Data?</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-body">
+              <div class="modal-body text-center">
+                <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
                 <p>Apakah Anda yakin ingin menghapus <strong><?= $row['tgl_trans'] ?></strong>?</p>
               </div>
               <div class="modal-footer">

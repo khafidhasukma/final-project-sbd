@@ -5,12 +5,20 @@ include '../config/koneksi.php';
 ?>
 
 <div class="container mt-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-5">
+    <ol class="breadcrumb align-items-center">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Daftar Stok Barang</li>
+    </ol>
+  </nav>
+
   <div class="d-flex justify-content-between align-items-center">
     <div>
       <h1 class="fs-3 fw-bold">Daftar Stok Barang</h1>
       <p>Berikut adalah daftar stok barang saat ini.</p>
     </div>
-    <a href="create-edit.php" class="btn btn-primary">Tambah Data</a>
+    <a href="create-edit.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Tambah Data</a>
   </div>
 
   <!-- Alert Success (session-based) -->
@@ -23,7 +31,7 @@ include '../config/koneksi.php';
 
 
   <div class="table-responsive mt-4">
-    <table class="table table-bordered">
+    <table class="table table-bordered bg-white shadow-sm">
       <thead class="table-light">
         <tr>
           <th>No</th>
@@ -47,7 +55,7 @@ include '../config/koneksi.php';
           <td><?= $row['nama_brg'] ?></td>
           <td><?= $row['satuan'] ?></td>
           <td><?= $row['jml_stok'] ?></td>
-          <td>
+          <td class="d-flex gap-2 align-items-center">
             <a href="show.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
@@ -67,8 +75,11 @@ include '../config/koneksi.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
+              <div class="modal-body text-center">
+                <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
                 <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
               </div>
+
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
