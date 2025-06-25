@@ -9,13 +9,11 @@ $jumlahPenjualan = $conn->query("SELECT COUNT(*) as total FROM t_jual")->fetch_a
 ?>
 
 <div class="fullpage-landing">
-  <div class="landing-text">
-    Selamat Datang Di Sistem Inventori
-  </div>
-
   <div class="container dashboard-container">
     <h1 class="fs-2 fw-bold">Dashboard Inventori</h1>
-
+    <div class="landing-text">
+    Selamat Datang Di Sistem Inventori
+    </div>
     <div class="row g-4 mt-4">
       <!-- total stok -->
       <div class="col-md-4">
