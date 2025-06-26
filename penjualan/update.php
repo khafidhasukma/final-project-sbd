@@ -8,8 +8,13 @@ $kode = $_POST['kode_brg'] ?? '';
 $stok = $_POST['jml_jual'] ?? 0;
 
 try {
+  // Jalankan stored procedure update
   $sql = "CALL update_penjualan('$transaksi', '$tanggal', '$kode', $stok)";
   $conn->query($sql);
+
+  // Lepas kunci record setelah update
+  $conn->query("UPDATE t_jual SET is_locked = 0, locked_by = NULL WHERE kd_trans = '$transaksi'");
+
   $_SESSION['success'] = "Data berhasil diperbarui.";
   header("Location: index.php");
   exit;
