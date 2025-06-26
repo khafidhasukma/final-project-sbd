@@ -5,7 +5,8 @@
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
   <!-- Custom style -->
-  <link rel="stylesheet" href="/assets/style.css">
+  <link href="/assets/style.css" rel="stylesheet">
+
 
   <style>
     /* Fonts */

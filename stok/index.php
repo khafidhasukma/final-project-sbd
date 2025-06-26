@@ -1,7 +1,11 @@
 <?php
 session_start();
-include '../components/header.php';
-include '../config/koneksi.php';
+
+// Tentukan path root project kamu
+$root = $_SERVER['DOCUMENT_ROOT'] . '/final-project-sbd';
+
+include $root . '/components/header.php';
+include $root . '/config/koneksi.php';
 ?>
 
 <div class="container mt-5">
