@@ -18,16 +18,26 @@ include '../config/koneksi.php';
       <h1 class="fs-3 fw-bold">Daftar Stok Barang</h1>
       <p>Berikut adalah daftar stok barang saat ini.</p>
     </div>
-    <a href="create-edit.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Tambah Data</a>
+    <a href="create-edit.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Tambah
+      Data</a>
   </div>
 
-  <!-- Alert Success (session-based) -->
-  <?php if (isset($_SESSION['success'])): ?>
-  <div id="alert-success" class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <!-- Alert Error -->
+  <?php if (isset($_SESSION['error'])): ?>
+  <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
   </div>
   <?php endif; ?>
+
+  <!-- Alert Success -->
+  <?php if (isset($_SESSION['success'])): ?>
+  <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+  </div>
+  <?php endif; ?>
+
 
 
   <div class="table-responsive mt-4">
@@ -75,23 +85,23 @@ include '../config/koneksi.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-              <div class="modal-body text-center">
-                <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
-                <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
-              </div>
+                <div class="modal-body text-center">
+                  <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                  <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
+                </div>
 
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                  <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <?php endwhile; else: ?>
-        <tr>
-          <td colspan="6" class="text-center text-muted py-4">Belum ada data stok barang.</td>
-        </tr>
-        <?php endif; ?>
+          <?php endwhile; else: ?>
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">Belum ada data stok barang.</td>
+          </tr>
+          <?php endif; ?>
       </tbody>
     </table>
   </div>
