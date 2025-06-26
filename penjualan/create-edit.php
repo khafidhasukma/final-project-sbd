@@ -16,6 +16,22 @@ $barangList = $conn->query("SELECT * FROM stok")->fetch_all(MYSQLI_ASSOC);
 
 if ($isEdit) {
   $transaksi = $_GET['transaksi'];
+  $user = $_SESSION['username']; // pastikan user login
+
+  // Cek apakah record dikunci user lain
+  $lockCheck = $conn->query("SELECT is_locked, locked_by FROM t_jual WHERE kd_trans = '$transaksi'");
+  $lockData = $lockCheck->fetch_assoc();
+
+  if ($lockData['is_locked'] == 1 && $lockData['locked_by'] != $user) {
+    $_SESSION['error'] = "Record sedang diedit oleh user lain ({$lockData['locked_by']})";
+    header("Location: index.php");
+    exit;
+  }
+
+  // Kunci record untuk user ini
+  $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user' WHERE kd_trans = '$transaksi'");
+
+  // Ambil data penjualan
   $result = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$transaksi'");
   if ($result->num_rows === 0) {
     $_SESSION['error'] = "Data dengan kode $transaksi tidak ditemukan.";
@@ -24,6 +40,7 @@ if ($isEdit) {
   }
   $data = $result->fetch_assoc();
 }
+
 ?>
 
 <div class="container mt-5">
@@ -87,7 +104,7 @@ if ($isEdit) {
         <div class="d-flex justify-content-end mt-5">
           <button type="submit" class="btn btn-success"><?= $isEdit ? 'Simpan Perubahan' : 'Simpan' ?></button>
           <button type="reset" class="btn btn-danger ms-2">Reset</button>
-          <a href="index.php" class="btn btn-secondary ms-2">Batal</a>
+          <a href="cancel.php?id=<?= $data['kd_trans'] ?>" class="btn btn-secondary ms-2">Batal</a>
         </div>
       </form>
     </div>
