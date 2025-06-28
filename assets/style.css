@@ -57,7 +57,7 @@ body {
     height: 100%;
     overflow: auto;
     width: 100%;
-    background-image: url('/img/web.png');
+    background-image: url('../img/web.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center right;

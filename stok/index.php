@@ -8,6 +8,9 @@ include $root . '/components/header.php';
 include $root . '/config/koneksi.php';
 ?>
 
+<!-- ❌ DIHAPUS - sudah ada di header.php -->
+<!-- <link rel="stylesheet" href="../assets/style.css"> -->
+
 <div class="container mt-5">
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
@@ -16,7 +19,7 @@ include $root . '/config/koneksi.php';
       <li class="breadcrumb-item active" aria-current="page">Daftar Stok Barang</li>
     </ol>
   </nav>
-
+  
   <div class="d-flex justify-content-between align-items-center">
     <div>
       <h1 class="fs-3 fw-bold">Daftar Stok Barang</h1>
@@ -41,8 +44,6 @@ include $root . '/config/koneksi.php';
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
   </div>
   <?php endif; ?>
-
-
 
   <div class="table-responsive mt-4">
     <table class="table table-bordered bg-white shadow-sm">
@@ -90,7 +91,8 @@ include $root . '/config/koneksi.php';
               </div>
               <div class="modal-body">
                 <div class="modal-body text-center">
-                  <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                  <!-- ✅ DIPERBAIKI - pakai path absolut -->
+                  <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
                   <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
                 </div>
 
@@ -101,14 +103,15 @@ include $root . '/config/koneksi.php';
               </div>
             </div>
           </div>
-          <?php endwhile; else: ?>
-          <tr>
-            <td colspan="6" class="text-center text-muted py-4">Belum ada data stok barang.</td>
-          </tr>
-          <?php endif; ?>
+        </div>
+        <?php endwhile; else: ?>
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">Belum ada data stok barang.</td>
+        </tr>
+        <?php endif; ?>
       </tbody>
     </table>
   </div>
 </div>
 
-<?php include '../components/footer.php'; ?>
+<?php include $root . '/components/footer.php'; ?>

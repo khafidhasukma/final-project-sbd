@@ -84,8 +84,8 @@ include '../config/koneksi.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body text-center">
-                <img src="img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
-                <p>Apakah Anda yakin ingin menghapus <strong><?= $row['tgl_trans'] ?></strong>?</p>
+                <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                <p>Apakah Anda yakin ingin menghapus <strong><?= $row['kd_trans'] ?></strong>?</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
