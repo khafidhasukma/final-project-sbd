@@ -28,7 +28,7 @@ if ($isEdit) {
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
       <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
-      <li class="breadcrumb-item"><a href="/stok/index.php">Daftar Stok Barang</a></li>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/stok/index.php">Daftar Stok Barang</a></li>
       <li class="breadcrumb-item active" aria-current="page"><?= $isEdit ? 'Edit Stok' : 'Tambah Stok' ?></li>
     </ol>
   </nav>

@@ -26,7 +26,7 @@ $data = $result->fetch_assoc();
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
       <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
-      <li class="breadcrumb-item"><a href="/stok/index.php">Daftar Transaksi Penjualan</a></li>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/penjualan/index.php">Daftar Penjualan</a></li>
       <li class="breadcrumb-item active" aria-current="page">Detail Transaksi Penjualan</li>
     </ol>
   </nav>
