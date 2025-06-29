@@ -59,6 +59,13 @@ include $root . '/config/koneksi.php';
       </thead>
       <tbody>
         <?php
+
+          // Auto unlock record yang nganggur lebih dari 5 menit
+          $now = date('Y-m-d H:i:s');
+          $conn->query("UPDATE stok SET is_locked = 0, locked_by = NULL 
+                        WHERE is_locked = 1 AND TIMESTAMPDIFF(MINUTE, locked_at, '$now') >= 5");
+
+
         $result = $conn->query("SELECT * FROM stok");
         $no = 1;
         if ($result->num_rows > 0):
