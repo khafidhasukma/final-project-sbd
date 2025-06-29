@@ -2,61 +2,44 @@
 session_start();
 include '../config/koneksi.php';
 
+$user      = $_SESSION['username'] ?? '';
 $transaksi = $_POST['kd_trans'] ?? '';
 $tanggal   = $_POST['tgl_trans'] ?? '';
 $kode      = $_POST['kode_brg'] ?? '';
 $jml_jual  = (int) ($_POST['jml_jual'] ?? 0);
 
 try {
-  // Validasi awal
-  if ($jml_jual <= 0) {
-    $_SESSION['error'] = "Jumlah jual harus lebih dari 0.";
-    header("Location: create-edit.php");
-    exit;
-  }
+  // Validasi
+  if ($jml_jual <= 0) throw new Exception("Jumlah jual harus lebih dari 0.");
 
-  // Cek apakah barang ada
-  $stok_brg = $conn->query("SELECT jml_stok FROM stok WHERE kode_brg = '$kode'");
-  if ($stok_brg->num_rows === 0) {
-    $_SESSION['error'] = "Barang dengan kode '$kode' tidak ditemukan.";
-    header("Location: create-edit.php");
-    exit;
-  }
+  // Cek stok
+  $cekStok = $conn->query("SELECT jml_stok FROM stok WHERE kode_brg = '$kode'");
+  if ($cekStok->num_rows === 0) throw new Exception("Barang tidak ditemukan.");
+  $stokTersedia = (int) $cekStok->fetch_assoc()['jml_stok'];
 
-  $data_stok = $stok_brg->fetch_assoc();
-  $stok_tersedia = (int) $data_stok['jml_stok'];
+  if ($jml_jual > $stokTersedia)
+    throw new Exception("Stok tidak cukup. Sisa stok: $stokTersedia");
 
-  if ($jml_jual > $stok_tersedia) {
-    $_SESSION['error'] = "Stok tidak mencukupi. Sisa stok: $stok_tersedia.";
-    header("Location: create-edit.php");
-    exit;
-  }
-
-  // Mulai transaksi
+  // 🔐 Simpan transaksi
   $conn->begin_transaction();
-
-  // Simpan transaksi
-  $insert_sql = "INSERT INTO t_jual (kd_trans, tgl_trans, kode_brg, jml_jual)
-                 VALUES ('$transaksi', '$tanggal', '$kode', $jml_jual)";
-  $conn->query($insert_sql);
-
-  // Update stok
-  $sisa_stok = $stok_tersedia - $jml_jual;
-  $update_sql = "UPDATE stok SET jml_stok = $sisa_stok WHERE kode_brg = '$kode'";
-  $conn->query($update_sql);
-
+  $conn->query("INSERT INTO t_jual (kd_trans, tgl_trans, kode_brg, jml_jual) VALUES ('$transaksi', '$tanggal', '$kode', $jml_jual)");
+  $conn->query("UPDATE stok SET jml_stok = jml_stok - $jml_jual WHERE kode_brg = '$kode'");
   $conn->commit();
-  $_SESSION['success'] = "Data berhasil ditambahkan.";
+
+  // 🧹 Bersihin dummy record dan unlock
+  $conn->query("DELETE FROM t_jual WHERE kd_trans = '__NEW__' AND locked_by = '$user'");
+  $conn->query("UPDATE global_lock 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE module = 'penjualan-tambah' AND locked_by = '$user'");
+
+  $_SESSION['success'] = "Transaksi berhasil disimpan.";
+  $conn->query("DELETE FROM t_jual WHERE kd_trans = '__NEW__' AND locked_by = '{$_SESSION['username']}'");
   header("Location: index.php");
   exit;
 
-} catch (mysqli_sql_exception $e) {
+} catch (Exception $e) {
   $conn->rollback();
-  if (str_contains($e->getMessage(), 'Duplicate entry')) {
-    $_SESSION['error'] = "Kode transaksi '$transaksi' sudah digunakan. Silakan gunakan kode lain.";
-  } else {
-    $_SESSION['error'] = "Terjadi kesalahan: " . $e->getMessage();
-  }
+  $_SESSION['error'] = "Gagal menyimpan: " . $e->getMessage();
   header("Location: create-edit.php");
   exit;
 }

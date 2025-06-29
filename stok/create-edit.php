@@ -3,7 +3,27 @@ session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
 
+$username = $_SESSION['username'] ?? 'anonymous';
+
+
 $isEdit = isset($_GET['kode']);
+// Kalau bukan edit → cek apakah sedang ada yang menambah data
+if (!$isEdit) {
+  $check = $conn->query("SELECT * FROM stok WHERE kode_brg = '__NEW__'");
+  $row = $check->fetch_assoc();
+
+  if ($row && $row['is_locked'] == 1 && $row['locked_by'] !== $_SESSION['username']) {
+    $_SESSION['error'] = "User lain sedang menambahkan record.";
+    header("Location: index.php");
+    exit;
+  }
+}
+  // Lock module tambah stok
+  $conn->query("UPDATE global_lock 
+              SET is_locked = 1, locked_by = '$username', locked_at = NOW()
+              WHERE module = 'stok-tambah'");
+
+
 $data = [
   'kode_brg' => '',
   'nama_brg' => '',
@@ -87,8 +107,9 @@ if ($isEdit) {
           <?php if ($isEdit): ?>
             <a href="cancel.php?kode=<?= $data['kode_brg'] ?>" class="btn btn-secondary ms-2">Batal</a>
           <?php else: ?>
-            <a href="index.php" class="btn btn-secondary ms-2">Batal</a>
+            <a href="cancel.php" class="btn btn-secondary ms-2">Batal</a>
           <?php endif; ?>
+
 
         </div>
       </form>
