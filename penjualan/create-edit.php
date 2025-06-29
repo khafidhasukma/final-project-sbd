@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
@@ -14,24 +14,28 @@ $data = [
 // Ambil daftar barang
 $barangList = $conn->query("SELECT * FROM stok")->fetch_all(MYSQLI_ASSOC);
 
+// Cek user login atau tidak
+$user = isset($_SESSION['username']) ? $_SESSION['username'] : 'guest';
+
 if ($isEdit) {
   $transaksi = $_GET['transaksi'];
-  $user = $_SESSION['username']; // pastikan user login
 
   // Cek apakah record dikunci user lain
   $lockCheck = $conn->query("SELECT is_locked, locked_by FROM t_jual WHERE kd_trans = '$transaksi'");
-  $lockData = $lockCheck->fetch_assoc();
+  if ($lockCheck->num_rows > 0) {
+    $lockData = $lockCheck->fetch_assoc();
 
-  if ($lockData['is_locked'] == 1 && $lockData['locked_by'] != $user) {
-    $_SESSION['error'] = "Record sedang diedit oleh user lain ({$lockData['locked_by']})";
-    header("Location: index.php");
-    exit;
+    if ($lockData['is_locked'] == 1) {
+      $_SESSION['error'] = "Record sedang dikunci oleh user lain.";
+      header("Location: index.php");
+      exit;
+    }
+
+    // Kunci record
+    $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user' WHERE kd_trans = '$transaksi'");
   }
 
-  // Kunci record untuk user ini
-  $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user' WHERE kd_trans = '$transaksi'");
-
-  // Ambil data penjualan
+  // Ambil data
   $result = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$transaksi'");
   if ($result->num_rows === 0) {
     $_SESSION['error'] = "Data dengan kode $transaksi tidak ditemukan.";
@@ -41,6 +45,20 @@ if ($isEdit) {
   $data = $result->fetch_assoc();
 }
 
+// CEK LOCK SAAT MAU TAMBAH DATA (INSERT MODE)
+if (!$isEdit && isset($_GET['kd_trans'])) {
+  $kd_trans = $_GET['kd_trans'];
+
+  $check = $conn->query("SELECT is_locked, locked_by FROM t_jual WHERE kd_trans = '$kd_trans'");
+  if ($check && $check->num_rows > 0) {
+    $lock = $check->fetch_assoc();
+    if ($lock['is_locked'] == 1) {
+      $_SESSION['error'] = "Kode transaksi $kd_trans sedang dikunci oleh user lain.";
+      header("Location: index.php");
+      exit;
+    }
+  }
+}
 ?>
 
 <div class="container mt-5">
@@ -54,16 +72,14 @@ if ($isEdit) {
   </nav>
 
   <h1 class="fs-3 fw-bold"><?= $isEdit ? 'Edit Penjualan' : 'Tambah Penjualan' ?></h1>
-  <p>
-    <?= $isEdit ? 'Ubah data Transaksi Penjualan berikut.' : 'Isi form berikut untuk menambahkan data Transaksi Penjualan baru.' ?>
-  </p>
+  <p><?= $isEdit ? 'Ubah data Transaksi Penjualan berikut.' : 'Isi form berikut untuk menambahkan data Transaksi Penjualan baru.' ?></p>
 
   <!-- Alert Error -->
   <?php if (isset($_SESSION['error'])): ?>
-  <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+      <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
   <?php endif; ?>
 
   <div class="card overflow-hidden mt-4">
@@ -87,10 +103,9 @@ if ($isEdit) {
           <select name="kode_brg" id="kode_brg" class="form-control" required>
             <option value="">-- Pilih Kode Barang --</option>
             <?php foreach ($barangList as $barang): ?>
-            <option value="<?= $barang['kode_brg'] ?>"
-              <?= ($data['kode_brg'] == $barang['kode_brg']) ? 'selected' : '' ?>>
-              <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
-            </option>
+              <option value="<?= $barang['kode_brg'] ?>" <?= ($data['kode_brg'] == $barang['kode_brg']) ? 'selected' : '' ?>>
+                <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
+              </option>
             <?php endforeach; ?>
           </select>
         </div>

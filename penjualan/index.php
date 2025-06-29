@@ -22,10 +22,19 @@ include '../config/koneksi.php';
   </div>
 
   <!-- Alert Success (session-based) -->
+   <!-- Alert Error -->
+  <?php if (isset($_SESSION['error'])): ?>
+  <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+  </div>
+  <?php endif; ?>
+
+  <!-- Alert Success -->
   <?php if (isset($_SESSION['success'])): ?>
-  <div id="alert-success" class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+  <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
     <?= $_SESSION['success']; unset($_SESSION['success']); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
   </div>
   <?php endif; ?>
 
@@ -75,7 +84,7 @@ include '../config/koneksi.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body text-center">
-                <img src="/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
                 <p>Apakah Anda yakin ingin menghapus <strong><?= $row['kd_trans'] ?></strong>?</p>
               </div>
               <div class="modal-footer">
