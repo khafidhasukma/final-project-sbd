@@ -15,7 +15,7 @@ include $root . '/config/koneksi.php';
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
       <li class="breadcrumb-item active" aria-current="page">Daftar Stok Barang</li>
     </ol>
   </nav>

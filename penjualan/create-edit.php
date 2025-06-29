@@ -65,7 +65,7 @@ if (!$isEdit && isset($_GET['kd_trans'])) {
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
       <li class="breadcrumb-item"><a href="/penjualan/index.php">Daftar Penjualan</a></li>
       <li class="breadcrumb-item active" aria-current="page"><?= $isEdit ? 'Edit Penjualan' : 'Tambah Penjualan' ?></li>
     </ol>
