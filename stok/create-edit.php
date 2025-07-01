@@ -1,28 +1,12 @@
-<?php
+<?php 
 session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
 
-$username = $_SESSION['username'] ?? 'anonymous';
-
+$user = $_SESSION['username'] ?? 'anonymous';
 
 $isEdit = isset($_GET['kode']);
-// Kalau bukan edit → cek apakah sedang ada yang menambah data
-if (!$isEdit) {
-  $check = $conn->query("SELECT * FROM stok WHERE kode_brg = '__NEW__'");
-  $row = $check->fetch_assoc();
-
-  if ($row && $row['is_locked'] == 1 && $row['locked_by'] !== $_SESSION['username']) {
-    $_SESSION['error'] = "User lain sedang menambahkan record.";
-    header("Location: index.php");
-    exit;
-  }
-}
-  // Lock module tambah stok
-  $conn->query("UPDATE global_lock 
-              SET is_locked = 1, locked_by = '$username', locked_at = NOW()
-              WHERE module = 'stok-tambah'");
-
+$isTambah = isset($_GET['mode']) && $_GET['mode'] === 'tambah';
 
 $data = [
   'kode_brg' => '',
@@ -31,7 +15,23 @@ $data = [
   'jml_stok' => '',
 ];
 
-if ($isEdit) {
+// 🌱 MODE TAMBAH
+if ($isTambah) {
+  // Validasi bahwa user ini memang pemilik kunci
+  $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");
+  $lock = $cek->fetch_assoc();
+
+  if (!$lock || $lock['locked_by'] !== $user) {
+    $_SESSION['error'] = "Akses tidak valid untuk menambah data.";
+    header("Location: index.php");
+    exit;
+  }
+
+  // lanjut aja, karena form tambah gak perlu ambil data
+}
+
+// 🛠 MODE EDIT
+else if ($isEdit) {
   $kode = $_GET['kode'];
   $result = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
   if ($result->num_rows === 0) {
@@ -41,17 +41,24 @@ if ($isEdit) {
   }
   $data = $result->fetch_assoc();
 
-  // 🔒 Cek apakah dikunci user lain
-  if ($data['is_locked'] == 1 && $data['locked_by'] !== $_SESSION['username']) {
+  // 🔒 Cek apakah record dikunci oleh user lain
+  if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
     $_SESSION['error'] = "Record sedang diedit oleh user lain.";
     header("Location: index.php");
     exit;
   }
 
-  // 🔐 Kunci data untuk user ini
-  $conn->query("UPDATE stok SET is_locked = 1, locked_by = '{$_SESSION['username']}', locked_at = NOW() WHERE kode_brg = '$kode'");
+  // 🔐 Kunci record
+  $conn->query("UPDATE stok SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                WHERE kode_brg = '$kode'");
+} else {
+  // Tidak ada kode, dan bukan tambah
+  $_SESSION['error'] = "Akses tidak valid.";
+  header("Location: index.php");
+  exit;
 }
 ?>
+
 
 <!-- 👇 HTML FORM tetap sama -->
 <div class="container mt-5">
@@ -107,7 +114,7 @@ if ($isEdit) {
           <?php if ($isEdit): ?>
             <a href="cancel.php?kode=<?= $data['kode_brg'] ?>" class="btn btn-secondary ms-2">Batal</a>
           <?php else: ?>
-            <a href="cancel.php" class="btn btn-secondary ms-2">Batal</a>
+            <a href="cancel.php?" class="btn btn-secondary ms-2">Batal</a>
           <?php endif; ?>
 
 

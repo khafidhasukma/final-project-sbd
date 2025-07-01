@@ -79,7 +79,8 @@ $conn->query("UPDATE global_lock
           <td class="d-flex gap-2 align-items-center">
             <a href="show.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
-            <a href="lock-delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-danger">Hapus</a>
+            <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-danger">Hapus</a>
+
           </td>
         </tr>
         <?php endwhile; else: ?>
