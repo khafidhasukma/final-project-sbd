@@ -5,49 +5,63 @@ include '../config/koneksi.php';
 $transaksi = $_POST['kd_trans'] ?? '';
 $tanggal   = $_POST['tgl_trans'] ?? '';
 $kode      = $_POST['kode_brg'] ?? '';
-$stok      = $_POST['jml_jual'] ?? 0;
-$user      = $_SESSION['username'] ?? '';
+$jml_jual  = (int) ($_POST['jml_jual'] ?? 0);
+$user      = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
 try {
-  // Cek status record
+  // 🚫 Validasi input jual
+  if ($jml_jual <= 0) {
+    throw new Exception("Jumlah jual harus lebih dari 0.");
+  }
+
+  // 🚫 Cek stok barang
+  $cekStok = $conn->query("SELECT jml_stok FROM stok WHERE kode_brg = '$kode'");
+  if ($cekStok->num_rows === 0) {
+    throw new Exception("Barang tidak ditemukan.");
+  }
+  $stokTersedia = (int) $cekStok->fetch_assoc()['jml_stok'];
+
+  if ($jml_jual > $stokTersedia) {
+    throw new Exception("Stok tidak cukup. Sisa stok: $stokTersedia");
+  }
+
+  // 🔐 Validasi kunci record
   $check = $conn->query("SELECT is_locked, locked_by FROM t_jual WHERE kd_trans = '$transaksi'");
   if ($check->num_rows === 0) {
-    $_SESSION['error'] = "Data transaksi tidak ditemukan.";
-    header("Location: index.php");
-    exit;
+    throw new Exception("Data transaksi tidak ditemukan.");
   }
 
   $lock = $check->fetch_assoc();
-  $is_locked = (int) $lock['is_locked'];
-  $locked_by = $lock['locked_by'];
-
-  // CASE 1: Rekaman dikunci oleh user lain
-  if ($is_locked === 1 && $locked_by !== $user) {
-    $_SESSION['error'] = "Anda tidak memiliki akses untuk mengubah data ini. Saat ini dikunci oleh user <strong>{$locked_by}</strong>.";
-    header("Location: create-edit.php?transaksi=$transaksi");
-    exit;
+  if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
+    throw new Exception("Data sedang dikunci oleh user lain: {$lock['locked_by']}.");
   }
 
-  // CASE 2: Rekaman belum dikunci, maka kunci dulu
-  if ($is_locked === 0) {
-    $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user' WHERE kd_trans = '$transaksi'");
+  // 🔄 Kunci record jika belum
+  if ($lock['is_locked'] == 0) {
+    $conn->query("UPDATE t_jual 
+                  SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                  WHERE kd_trans = '$transaksi'");
   }
 
-  // ✅ Jalankan simpan (stored procedure)
-  $conn->query("CALL update_penjualan('$transaksi', '$tanggal', '$kode', $stok)");
+  // ✅ Update via stored procedure
+  $conn->query("CALL update_penjualan('$transaksi', '$tanggal', '$kode', $jml_jual)");
 
-  // 💤 Tunggu 3 detik sebelum melepas lock
-  sleep(3);
-
-  // 🔓 Lepaskan kunci
-  $conn->query("UPDATE t_jual SET is_locked = 0, locked_by = NULL WHERE kd_trans = '$transaksi'");
+  // 🔓 Lepas kunci setelah simpan
+  $conn->query("UPDATE t_jual 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE kd_trans = '$transaksi'");
 
   $_SESSION['success'] = "Data berhasil diperbarui.";
   header("Location: index.php");
   exit;
 
-} catch (mysqli_sql_exception $e) {
-  $_SESSION['error'] = "Gagal mengupdate data: " . $e->getMessage();
+} catch (Exception $e) {
+  // Pastikan unlock jika terjadi error
+  $conn->query("UPDATE t_jual 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE kd_trans = '$transaksi' AND locked_by = '$user'");
+
+  $_SESSION['error'] = "Gagal memperbarui: " . $e->getMessage();
   header("Location: create-edit.php?transaksi=$transaksi");
   exit;
 }

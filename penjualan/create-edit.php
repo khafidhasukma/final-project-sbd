@@ -3,8 +3,9 @@ session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
 
+$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 $isEdit = isset($_GET['transaksi']);
-$user = $_SESSION['username'] ?? 'anonymous';
+$isTambah = !isset($_GET['transaksi']);
 
 $data = [
   'kd_trans' => '',
@@ -16,6 +17,25 @@ $data = [
 // Ambil daftar barang dari tabel stok
 $barangList = $conn->query("SELECT * FROM stok")->fetch_all(MYSQLI_ASSOC);
 
+// ✅ CEK JIKA MODE TAMBAH
+if ($isTambah) {
+  $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'");
+  $lock = $cek->fetch_assoc();
+
+  if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
+    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: {$lock['locked_by']}.";
+    header("Location: index.php");
+    exit;
+  }
+
+  // Lock form tambah
+  $conn->query("UPDATE global_lock 
+                SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                WHERE module = 'penjualan-tambah'");
+}
+
+
+// 🛠 MODE EDIT
 if ($isEdit) {
   $transaksi = $_GET['transaksi'];
 
@@ -30,7 +50,8 @@ if ($isEdit) {
   }
 
   // Kunci record untuk user saat ini
-  $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user', locked_at = NOW() WHERE kd_trans = '$transaksi'");
+  $conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                WHERE kd_trans = '$transaksi'");
 
   // Ambil data penjualan
   $result = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$transaksi'");
@@ -45,7 +66,6 @@ if ($isEdit) {
 ?>
 
 <div class="container mt-5">
-  <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
       <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -58,10 +78,10 @@ if ($isEdit) {
   <p><?= $isEdit ? 'Ubah data transaksi berikut.' : 'Isi form berikut untuk menambahkan transaksi baru.' ?></p>
 
   <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-      <?= $_SESSION['error']; unset($_SESSION['error']); ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
-    </div>
+  <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+  </div>
   <?php endif; ?>
 
   <div class="card overflow-hidden mt-4">
@@ -70,8 +90,7 @@ if ($isEdit) {
         <div class="mb-3">
           <label for="kd_trans" class="form-label">Kode Transaksi</label>
           <input type="text" class="form-control" id="kd_trans" name="kd_trans"
-            value="<?= htmlspecialchars($data['kd_trans']) ?>"
-            <?= $isEdit ? 'readonly' : 'required' ?> />
+            value="<?= htmlspecialchars($data['kd_trans']) ?>" <?= $isEdit ? 'readonly' : 'required' ?> />
         </div>
 
         <div class="mb-3">
@@ -85,9 +104,10 @@ if ($isEdit) {
           <select name="kode_brg" id="kode_brg" class="form-control" required>
             <option value="">-- Pilih Kode Barang --</option>
             <?php foreach ($barangList as $barang): ?>
-              <option value="<?= $barang['kode_brg'] ?>" <?= ($data['kode_brg'] == $barang['kode_brg']) ? 'selected' : '' ?>>
-                <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
-              </option>
+            <option value="<?= $barang['kode_brg'] ?>"
+              <?= ($data['kode_brg'] == $barang['kode_brg']) ? 'selected' : '' ?>>
+              <?= $barang['kode_brg'] ?> - <?= $barang['nama_brg'] ?>
+            </option>
             <?php endforeach; ?>
           </select>
         </div>
@@ -101,7 +121,7 @@ if ($isEdit) {
         <div class="d-flex justify-content-end mt-5">
           <button type="submit" class="btn btn-success"><?= $isEdit ? 'Simpan Perubahan' : 'Simpan' ?></button>
           <button type="reset" class="btn btn-danger ms-2">Reset</button>
-          <a href="cancel.php?id=<?= $isEdit ? $data['kd_trans'] : '__NEW__' ?>" class="btn btn-secondary ms-2">Batal</a>
+          <a href="cancel.php?id=<?= $isEdit ? $data['kd_trans'] : '' ?>" class="btn btn-secondary ms-2">Batal</a>
         </div>
       </form>
     </div>

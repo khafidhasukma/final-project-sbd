@@ -2,34 +2,27 @@
 session_start();
 include '../config/koneksi.php';
 
-// Gunakan IP address sebagai identitas user
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$id = $_GET['transaksi'] ?? '';
 
-if (!isset($_GET['transaksi'])) {
-  header("Location: index.php");
-  exit;
-}
-
-$transaksi = $_GET['transaksi'];
-
-// Cek apakah record sedang dikunci oleh user lain
-$result = $conn->query("SELECT is_locked, locked_by FROM t_jual WHERE kd_trans = '$transaksi'");
-if ($result->num_rows === 0) {
+$q = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$id'");
+if ($q->num_rows === 0) {
   $_SESSION['error'] = "Data tidak ditemukan.";
   header("Location: index.php");
   exit;
 }
 
-$row = $result->fetch_assoc();
-if ($row['is_locked'] == 1 && $row['locked_by'] !== $user) {
-  $_SESSION['error'] = "Data sedang digunakan oleh user lain.";
+$data = $q->fetch_assoc();
+if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
+  $_SESSION['error'] = "Data sedang dikunci oleh {$data['locked_by']}.";
   header("Location: index.php");
   exit;
 }
 
-// Kunci record untuk proses delete
-$conn->query("UPDATE t_jual SET is_locked = 1, locked_by = '$user', locked_at = NOW() WHERE kd_trans = '$transaksi'");
+// Kunci record
+$conn->query("UPDATE t_jual 
+              SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+              WHERE kd_trans = '$id'");
 
-// Arahkan ke index untuk tampilkan modal delete
-header("Location: index.php");
+header("Location: index.php?delete=$id");
 exit;

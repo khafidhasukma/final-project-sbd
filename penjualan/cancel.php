@@ -2,15 +2,25 @@
 session_start();
 include '../config/koneksi.php';
 
+$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 $id = $_GET['id'] ?? '';
-$user = $_SESSION['username'] ?? '';
 
-// Cek apakah id = __NEW__, lepas dummy
-if ($id === '__NEW__') {
-  $conn->query("DELETE FROM t_jual WHERE kd_trans = '__NEW__' AND locked_by = '$user'");
+// 🔓 Unlock MODE EDIT (jika ada id)
+if ($id) {
+  $conn->query("UPDATE t_jual 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE kd_trans = '$id' AND locked_by = '$user'");
 } else {
-  $conn->query("UPDATE t_jual SET is_locked = 0, locked_by = NULL, locked_at = NULL WHERE kd_trans = '$id' AND locked_by = '$user'");
+  // 🔓 Unlock semua record yang dikunci user ini (misalnya modal hapus)
+  $conn->query("UPDATE t_jual 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE is_locked = 1 AND locked_by = '$user'");
 }
+
+// 🔓 Unlock MODE TAMBAH
+$conn->query("UPDATE global_lock 
+              SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+              WHERE module = 'penjualan-tambah' AND locked_by = '$user'");
 
 header("Location: index.php");
 exit;

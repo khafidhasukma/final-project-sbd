@@ -2,22 +2,22 @@
 session_start();
 include '../config/koneksi.php';
 
-$username = $_SESSION['username'] ?? 'anonymous';
+$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
-// Cek apakah ada lock aktif untuk tambah penjualan
-$cek = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'");
-$lock = $cek->fetch_assoc();
+// Cek lock
+$q = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'");
+$lock = $q->fetch_assoc();
 
-if ($lock && $lock['is_locked'] == 1 && $lock['locked_by'] !== $username) {
-  $_SESSION['error'] = "User lain sedang menambahkan transaksi.";
+if ($lock && $lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
+  $_SESSION['error'] = "Form tambah penjualan sedang digunakan oleh {$lock['locked_by']}.";
   header("Location: index.php");
   exit;
 }
 
-// Lock module tambah penjualan
+// Kunci global_lock
 $conn->query("UPDATE global_lock 
-              SET is_locked = 1, locked_by = '$username', locked_at = NOW()
-              WHERE module = 'penjualan-tambah'");
+  SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+  WHERE module = 'penjualan-tambah'");
 
 header("Location: create-edit.php");
 exit;

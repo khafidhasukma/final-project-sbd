@@ -11,23 +11,26 @@ if (!$id) {
   exit;
 }
 
-// Cek apakah record terkunci oleh user ini
-$cek = $conn->query("SELECT locked_by FROM t_jual WHERE kd_trans = '$id'");
-$data = $cek->fetch_assoc();
+try {
+  // Validasi apakah transaksi ada dan dikunci oleh user ini
+  $cek = $conn->query("SELECT locked_by FROM t_jual WHERE kd_trans = '$id'");
+  $data = $cek->fetch_assoc();
 
-if (!$data) {
-  $_SESSION['error'] = "Data tidak ditemukan.";
-} else {
-  // Hapus data transaksi
-  try {
+  if (!$data) {
+    $_SESSION['error'] = "Data transaksi tidak ditemukan.";
+  } elseif ($data['locked_by'] !== $user) {
+    $_SESSION['error'] = "Data sedang dikunci oleh user lain.";
+  } else {
+    // Hapus data
     $conn->query("DELETE FROM t_jual WHERE kd_trans = '$id'");
     $_SESSION['success'] = "Transaksi berhasil dihapus.";
-  } catch (Exception $e) {
-    $_SESSION['error'] = "Gagal menghapus: " . $e->getMessage();
   }
+
+} catch (mysqli_sql_exception $e) {
+  $_SESSION['error'] = "Gagal menghapus: " . $e->getMessage();
 }
 
-// Lepas kunci, jika masih ada
+// 🔓 Lepas kunci
 $conn->query("UPDATE t_jual 
               SET is_locked = 0, locked_by = NULL, locked_at = NULL 
               WHERE kd_trans = '$id' AND locked_by = '$user'");
