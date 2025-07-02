@@ -6,6 +6,8 @@ include '../config/koneksi.php';
 $user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
 $isEdit = isset($_GET['kode']);
+$isTambah = isset($_GET['mode']) && $_GET['mode'] === 'tambah';
+
 $data = [
   'kode_brg' => '',
   'nama_brg' => '',
@@ -13,11 +15,26 @@ $data = [
   'jml_stok' => '',
 ];
 
-// MODE EDIT
+// ✅ CEK JIKA MODE TAMBAH
+if ($isTambah) {
+  $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");
+  $lock = $cek->fetch_assoc();
+
+  if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
+    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: {$lock['locked_by']}.";
+    header("Location: index.php");
+    exit;
+  }
+
+  // Lock form tambah
+  $conn->query("UPDATE global_lock 
+                SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                WHERE module = 'stok-tambah'");
+}
+
+// ✅ CEK JIKA MODE EDIT
 if ($isEdit) {
   $kode = $_GET['kode'];
-
-  // Ambil data stok
   $result = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
   if ($result->num_rows === 0) {
     $_SESSION['error'] = "Data dengan kode $kode tidak ditemukan.";
@@ -27,14 +44,13 @@ if ($isEdit) {
 
   $data = $result->fetch_assoc();
 
-  // Cek apakah sedang dikunci oleh user lain
   if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
     $_SESSION['error'] = "Data sedang digunakan oleh user lain: {$data['locked_by']}.";
     header("Location: index.php");
     exit;
   }
 
-  // Lock data untuk user ini
+  // Lock record
   $conn->query("UPDATE stok 
                 SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
                 WHERE kode_brg = '$kode'");

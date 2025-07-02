@@ -2,24 +2,31 @@
 session_start();
 include '../config/koneksi.php';
 
-$username = $_SESSION['username'] ?? 'anonymous';
+// Gunakan IP sebagai identitas user
+$username = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
-// Cek apakah ada lock aktif untuk tambah data
+// Ambil data global_lock untuk stok-tambah
 $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");
 $lock = $cek->fetch_assoc();
 
-// Kalau ada yang ngelock dan bukan user sekarang, tolak akses
+// Jika data belum ada (row kosong), insert dulu default
+if (!$lock) {
+  $conn->query("INSERT INTO global_lock (module, is_locked, locked_by, locked_at) VALUES ('stok-tambah', 0, NULL, NULL)");
+  $lock = ['is_locked' => 0, 'locked_by' => null];
+}
+
+// Jika sedang dikunci oleh user lain
 if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $username) {
-  $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain.";
+  $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: {$lock['locked_by']}.";
   header("Location: index.php");
   exit;
 }
 
-// Kunci modul
+// Kunci modul untuk user ini
 $conn->query("UPDATE global_lock 
-              SET is_locked = 1, locked_by = '$username', locked_at = NOW()
+              SET is_locked = 1, locked_by = '$username', locked_at = NOW() 
               WHERE module = 'stok-tambah'");
 
-// Redirect ke form tambah dengan mode
+// Redirect ke form tambah
 header("Location: create-edit.php?mode=tambah");
 exit;
