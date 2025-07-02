@@ -2,13 +2,8 @@
 session_start();
 include '../config/koneksi.php';
 
-if (!isset($_SESSION['username'])) {
-  $_SESSION['error'] = "Login dulu dong!";
-  header("Location: /final-project-sbd/login.php");
-  exit;
-}
-
-$username = $_SESSION['username'];
+// Gunakan IP sebagai identitas user
+$username = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 $kode = $_GET['kode'] ?? '';
 
 // 🔓 Kalau ada kode barang (mode edit)
@@ -17,9 +12,7 @@ if ($kode) {
   if ($cek->num_rows > 0) {
     $data = $cek->fetch_assoc();
     if ($data['is_locked'] == 1 && $data['locked_by'] === $username) {
-      $conn->query("UPDATE stok 
-                    SET is_locked = 0, locked_by = NULL, locked_at = NULL 
-                    WHERE kode_brg = '$kode'");
+      $conn->query("UPDATE stok SET is_locked = 0, locked_by = NULL, locked_at = NULL WHERE kode_brg = '$kode'");
     }
   }
 } else {
