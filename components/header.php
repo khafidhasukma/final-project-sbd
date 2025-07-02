@@ -7,13 +7,16 @@
   <!-- ✅ Ganti jadi path absolut -->
   <link rel="stylesheet" href="/final-project-sbd/assets/style.css">
 
-  <style>
-    /* Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+  <!-- Favicon -->
+  <link rel="icon" href="/final-project-sbd/img/favicon.ico" type="image/png">
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+  <style>
+  /* Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
   </style>
 </head>
 
