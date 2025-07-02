@@ -3,11 +3,9 @@ session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
 
-$user = $_SESSION['username'] ?? 'anonymous';
+$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
 $isEdit = isset($_GET['kode']);
-$isTambah = isset($_GET['mode']) && $_GET['mode'] === 'tambah';
-
 $data = [
   'kode_brg' => '',
   'nama_brg' => '',
@@ -15,52 +13,34 @@ $data = [
   'jml_stok' => '',
 ];
 
-// 🌱 MODE TAMBAH
-if ($isTambah) {
-  // Validasi bahwa user ini memang pemilik kunci
-  $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");
-  $lock = $cek->fetch_assoc();
-
-  if (!$lock || $lock['locked_by'] !== $user) {
-    $_SESSION['error'] = "Akses tidak valid untuk menambah data.";
-    header("Location: index.php");
-    exit;
-  }
-
-  // lanjut aja, karena form tambah gak perlu ambil data
-}
-
-// 🛠 MODE EDIT
-else if ($isEdit) {
+// MODE EDIT
+if ($isEdit) {
   $kode = $_GET['kode'];
+
+  // Ambil data stok
   $result = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
   if ($result->num_rows === 0) {
     $_SESSION['error'] = "Data dengan kode $kode tidak ditemukan.";
     header("Location: index.php");
     exit;
   }
+
   $data = $result->fetch_assoc();
 
-  // 🔒 Cek apakah record dikunci oleh user lain
+  // Cek apakah sedang dikunci oleh user lain
   if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
-    $_SESSION['error'] = "Record sedang diedit oleh user lain.";
+    $_SESSION['error'] = "Data sedang digunakan oleh user lain: {$data['locked_by']}.";
     header("Location: index.php");
     exit;
   }
 
-  // 🔐 Kunci record
-  $conn->query("UPDATE stok SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+  // Lock data untuk user ini
+  $conn->query("UPDATE stok 
+                SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
                 WHERE kode_brg = '$kode'");
-} else {
-  // Tidak ada kode, dan bukan tambah
-  $_SESSION['error'] = "Akses tidak valid.";
-  header("Location: index.php");
-  exit;
 }
 ?>
 
-
-<!-- 👇 HTML FORM tetap sama -->
 <div class="container mt-5">
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">

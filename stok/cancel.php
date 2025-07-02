@@ -2,24 +2,14 @@
 session_start();
 include '../config/koneksi.php';
 
-// Gunakan IP sebagai identitas user
-$username = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 $kode = $_GET['kode'] ?? '';
 
-// 🔓 Kalau ada kode barang (mode edit)
+// Lepas kunci hanya jika user yang sama
 if ($kode) {
-  $cek = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
-  if ($cek->num_rows > 0) {
-    $data = $cek->fetch_assoc();
-    if ($data['is_locked'] == 1 && $data['locked_by'] === $username) {
-      $conn->query("UPDATE stok SET is_locked = 0, locked_by = NULL, locked_at = NULL WHERE kode_brg = '$kode'");
-    }
-  }
-} else {
-  // 🔓 Kalau tidak ada kode (mode tambah), unlock global_lock
-  $conn->query("UPDATE global_lock 
+  $conn->query("UPDATE stok 
                 SET is_locked = 0, locked_by = NULL, locked_at = NULL 
-                WHERE module = 'stok-tambah' AND locked_by = '$username'");
+                WHERE kode_brg = '$kode' AND locked_by = '$user'");
 }
 
 header("Location: index.php");
