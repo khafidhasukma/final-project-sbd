@@ -47,28 +47,28 @@ if ($check && $r = $check->fetch_assoc()) {
       <p>Berikut adalah daftar transaksi penjualan saat ini.</p>
     </div>
     <?php if ($dummyLocked): ?>
-      <button class="btn btn-secondary" disabled>
-        User lain sedang menambahkan transaksi (<?= $dummyBy ?>)
-      </button>
+    <button class="btn btn-secondary" disabled>
+      User lain sedang menambahkan transaksi (<?= $dummyBy ?>)
+    </button>
     <?php else: ?>
-      <a href="lock-create.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">
-        Tambah Transaksi
-      </a>
+    <a href="lock-create.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">
+      Tambah Transaksi
+    </a>
     <?php endif; ?>
   </div>
 
   <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-      <?= $_SESSION['error']; unset($_SESSION['error']); ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
-    </div>
+  <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+  </div>
   <?php endif; ?>
 
   <?php if (isset($_SESSION['success'])): ?>
-    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-      <?= $_SESSION['success']; unset($_SESSION['success']); ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
-    </div>
+  <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+  </div>
   <?php endif; ?>
 
   <div class="table-responsive mt-4">
@@ -99,9 +99,32 @@ if ($check && $r = $check->fetch_assoc()) {
           <td class="d-flex gap-2 align-items-center">
             <a href="show.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-warning">Edit</a>
-            <a href="lock-delete.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-danger">Hapus</a>
+            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+              data-bs-target="#deleteModal<?= $row['kd_trans'] ?>">
+              Hapus
+            </button>
           </td>
         </tr>
+        <!-- Modal Hapus -->
+        <div class="modal fade" id="deleteModal<?= $row['kd_trans'] ?>" tabindex="-1"
+          aria-labelledby="deleteModalLabel<?= $row['kd_trans'] ?>" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel<?= $row['kd_trans'] ?>">Hapus Transaksi?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                <p>Apakah Anda yakin ingin menghapus transaksi <strong><?= $row['kd_trans'] ?></strong>?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <a href="delete.php?id=<?= $row['kd_trans'] ?>" class="btn btn-danger">Hapus</a>
+              </div>
+            </div>
+          </div>
+        </div>
         <?php endwhile; else: ?>
         <tr>
           <td colspan="6" class="text-center text-muted py-4">Belum ada data Transaksi.</td>
@@ -125,10 +148,10 @@ if ($check && $r = $check->fetch_assoc()) {
   }
 ?>
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const modal = new bootstrap.Modal(document.getElementById('deleteModalAuto'));
-    modal.show();
-  });
+window.addEventListener('DOMContentLoaded', () => {
+  const modal = new bootstrap.Modal(document.getElementById('deleteModalAuto'));
+  modal.show();
+});
 </script>
 
 <div class="modal fade" id="deleteModalAuto" tabindex="-1">
