@@ -2,26 +2,35 @@
 session_start();
 include '../config/koneksi.php';
 
-if (!isset($_GET['kode']) || !isset($_SESSION['username'])) {
+$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+
+if (!isset($_GET['kode'])) {
   header("Location: index.php");
   exit;
 }
 
 $kode = $_GET['kode'];
-$username = $_SESSION['username'];
 
-// Cek kalau record udah dikunci user lain
+// Cek kunci
 $result = $conn->query("SELECT is_locked, locked_by FROM stok WHERE kode_brg = '$kode'");
-$row = $result->fetch_assoc();
-
-if ($row['is_locked'] == 1 && $row['locked_by'] !== $username) {
-  $_SESSION['error'] = "Record sedang digunakan oleh user lain.";
+if ($result->num_rows === 0) {
+  $_SESSION['error'] = "Data tidak ditemukan.";
   header("Location: index.php");
   exit;
 }
 
-// Kunci record untuk proses delete
-$conn->query("UPDATE stok SET is_locked = 1, locked_by = '$username', locked_at = NOW() WHERE kode_brg = '$kode'");
+$row = $result->fetch_assoc();
+if ($row['is_locked'] == 1 && $row['locked_by'] !== $user) {
+  $_SESSION['error'] = "Data sedang digunakan oleh user lain: {$row['locked_by']}.";
+  header("Location: index.php");
+  exit;
+}
 
+// Kunci record
+$conn->query("UPDATE stok 
+              SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+              WHERE kode_brg = '$kode'");
+
+// Arahkan ke index untuk munculkan modal otomatis
 header("Location: index.php?delete=$kode");
 exit;

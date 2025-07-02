@@ -1,16 +1,16 @@
 <?php
 session_start();
 $root = $_SERVER['DOCUMENT_ROOT'] . '/final-project-sbd';
-
 include $root . '/components/header.php';
 include $root . '/config/koneksi.php';
 
-// Auto-unlock record yang udah dikunci > 5 menit
+$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+
+// Auto-unlock jika dikunci > 5 menit
 $now = date('Y-m-d H:i:s');
 $conn->query("UPDATE stok SET is_locked = 0, locked_by = NULL, locked_at = NULL 
               WHERE is_locked = 1 AND TIMESTAMPDIFF(MINUTE, locked_at, '$now') >= 5");
 
-// ⏰ Auto-unlock TAMBAH DATA stok jika idle > 5 menit
 $conn->query("UPDATE global_lock 
               SET is_locked = 0, locked_by = NULL, locked_at = NULL 
               WHERE module = 'stok-tambah' 
@@ -19,10 +19,9 @@ $conn->query("UPDATE global_lock
 ?>
 
 <div class="container mt-5">
-  <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
-      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a></li>
       <li class="breadcrumb-item active" aria-current="page">Daftar Stok Barang</li>
     </ol>
   </nav>
@@ -36,7 +35,6 @@ $conn->query("UPDATE global_lock
       Data</a>
   </div>
 
-  <!-- Alert Error -->
   <?php if (isset($_SESSION['error'])): ?>
   <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
     <?= $_SESSION['error']; unset($_SESSION['error']); ?>
@@ -44,7 +42,6 @@ $conn->query("UPDATE global_lock
   </div>
   <?php endif; ?>
 
-  <!-- Alert Success -->
   <?php if (isset($_SESSION['success'])): ?>
   <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
     <?= $_SESSION['success']; unset($_SESSION['success']); ?>
@@ -70,6 +67,7 @@ $conn->query("UPDATE global_lock
         $no = 1;
         if ($result->num_rows > 0):
           while ($row = $result->fetch_assoc()):
+            $locked = ($row['is_locked'] == 1 && $row['locked_by'] !== $user);
         ?>
         <tr>
           <td><?= $no++ ?></td>
@@ -80,27 +78,27 @@ $conn->query("UPDATE global_lock
           <td class="d-flex gap-2 align-items-center">
             <a href="show.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
             <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
-            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-              data-bs-target="#deleteModal<?= $row['kode_brg'] ?>">
+            <a href="lock-delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-danger">
               Hapus
-            </button>
+            </a>
           </td>
         </tr>
-        <!-- Modal Hapus -->
+
+        <!-- Modal Delete -->
         <div class="modal fade" id="deleteModal<?= $row['kode_brg'] ?>" tabindex="-1"
           aria-labelledby="deleteModalLabel<?= $row['kode_brg'] ?>" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
                 <h1 class="modal-title fs-5" id="deleteModalLabel<?= $row['kode_brg'] ?>">Hapus Data?</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <a href="cancel.php?kode=<?= $row['kode_brg'] ?>" class="btn-close" aria-label="Tutup"></a>
               </div>
               <div class="modal-body text-center">
                 <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
                 <p>Apakah Anda yakin ingin menghapus <strong><?= $row['nama_brg'] ?></strong>?</p>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <a href="cancel.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-secondary">Batal</a>
                 <a href="delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
               </div>
             </div>
@@ -117,45 +115,24 @@ $conn->query("UPDATE global_lock
 </div>
 
 <?php
-// Modal delete otomatis kalau ada ?delete
+// Auto-tampilkan modal jika redirect dari lock-delete.php
 if (isset($_GET['delete'])):
   $kode = $_GET['delete'];
-  $result = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
-  $data = $result->fetch_assoc();
+  $res = $conn->query("SELECT * FROM stok WHERE kode_brg = '$kode'");
+  $data = $res->fetch_assoc();
 
-  // ❌ Kalau data sudah dihapus oleh user lain
   if (!$data) {
-    $_SESSION['error'] = "Data dengan kode $kode sudah dihapus oleh user lain.";
+    $_SESSION['error'] = "Data $kode sudah dihapus.";
     header("Location: index.php");
     exit;
   }
 ?>
-<!-- Modal Delete Otomatis -->
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-  const modal = new bootstrap.Modal(document.getElementById('deleteModalAuto'));
+  const modal = new bootstrap.Modal(document.getElementById('deleteModal<?= $data['kode_brg'] ?>'));
   modal.show();
 });
 </script>
-
-<div class="modal fade" id="deleteModalAuto" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hapus Data?</h5>
-        <a href="cancel.php?kode=<?= $data['kode_brg'] ?>" class="btn-close"></a>
-      </div>
-      <div class="modal-body text-center">
-        <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
-        <p>Yakin ingin menghapus <strong><?= $data['nama_brg'] ?></strong>?</p>
-      </div>
-      <div class="modal-footer">
-        <a href="cancel.php?kode=<?= $data['kode_brg'] ?>" class="btn btn-secondary">Batal</a>
-        <a href="delete.php?kode=<?= $data['kode_brg'] ?>" class="btn btn-danger">Hapus</a>
-      </div>
-    </div>
-  </div>
-</div>
 <?php endif; ?>
 
 <?php include $root . '/components/footer.php'; ?>

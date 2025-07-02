@@ -10,15 +10,15 @@
   integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
 </body>
 <script>
-  // Auto-dismiss alert after 3 seconds
-  const alertBox = document.getElementById('alert-success');
-  if (alertBox) {
-    setTimeout(() => {
-      // Bootstrap 5 uses fade and show classes for animation
-      alertBox.classList.remove('show');
-      alertBox.classList.add('d-none');
-    }, 3000);
-  }
+// Auto-dismiss alert after 3 seconds
+const alertBox = document.getElementById('alert-success');
+if (alertBox) {
+  setTimeout(() => {
+    // Bootstrap 5 uses fade and show classes for animation
+    alertBox.classList.remove('show');
+    alertBox.classList.add('d-none');
+  }, 3000);
+}
 </script>
 
 </html>
