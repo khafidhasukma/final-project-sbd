@@ -17,7 +17,7 @@ if (!$lock) {
 
 // Jika sedang dikunci oleh user lain
 if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $username) {
-  $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: {$lock['locked_by']}.";
+  $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain.";
   header("Location: index.php");
   exit;
 }

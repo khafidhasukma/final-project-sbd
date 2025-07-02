@@ -14,7 +14,7 @@ if ($q->num_rows === 0) {
 
 $data = $q->fetch_assoc();
 if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
-  $_SESSION['error'] = "Data sedang dikunci oleh {$data['locked_by']}.";
+  $_SESSION['error'] = "Data sedang dikunci oleh user lain.";
   header("Location: index.php");
   exit;
 }

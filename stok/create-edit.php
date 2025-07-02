@@ -21,7 +21,7 @@ if ($isTambah) {
   $lock = $cek->fetch_assoc();
 
   if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
-    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: {$lock['locked_by']}.";
+    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain.";
     header("Location: index.php");
     exit;
   }
@@ -45,7 +45,7 @@ if ($isEdit) {
   $data = $result->fetch_assoc();
 
   if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
-    $_SESSION['error'] = "Data sedang digunakan oleh user lain: {$data['locked_by']}.";
+    $_SESSION['error'] = "Data sedang digunakan oleh user lain.";
     header("Location: index.php");
     exit;
   }

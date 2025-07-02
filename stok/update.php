@@ -21,7 +21,7 @@ try {
   }
 
   if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
-    $_SESSION['error'] = "Data sedang dikunci oleh user lain: {$data['locked_by']}.";
+    $_SESSION['error'] = "Data sedang dikunci oleh user lain.";
     header("Location: index.php");
     exit;
   }

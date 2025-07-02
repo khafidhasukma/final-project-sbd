@@ -21,7 +21,7 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 if ($row['is_locked'] == 1 && $row['locked_by'] !== $user) {
-  $_SESSION['error'] = "Data sedang digunakan oleh user lain: {$row['locked_by']}.";
+  $_SESSION['error'] = "Data sedang digunakan oleh user lain.";
   header("Location: index.php");
   exit;
 }

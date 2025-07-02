@@ -9,7 +9,7 @@ $q = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'")
 $lock = $q->fetch_assoc();
 
 if ($lock && $lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
-  $_SESSION['error'] = "Form tambah penjualan sedang digunakan oleh {$lock['locked_by']}.";
+  $_SESSION['error'] = "Form tambah penjualan sedang digunakan oleh user lain.";
   header("Location: index.php");
   exit;
 }

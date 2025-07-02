@@ -33,7 +33,7 @@ try {
 
   $lock = $check->fetch_assoc();
   if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
-    throw new Exception("Data sedang dikunci oleh user lain: {$lock['locked_by']}.");
+    throw new Exception("Data sedang dikunci oleh user lain.");
   }
 
   // 🔄 Kunci record jika belum
