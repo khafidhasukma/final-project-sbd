@@ -22,7 +22,7 @@ try {
     $_SESSION['error'] = "Data sedang dikunci oleh user lain.";
   } else {
     // Hapus data
-    $conn->query("DELETE FROM t_jual WHERE kd_trans = '$id'");
+    $conn->query("CALL delete_penjualan('$id')");
     $_SESSION['success'] = "Transaksi berhasil dihapus.";
   }
 
