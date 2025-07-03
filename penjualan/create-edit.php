@@ -3,7 +3,7 @@ session_start();
 include '../components/header.php';
 include '../config/koneksi.php';
 
-$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['username'] ?? $_SESSION['client_name'];
 $isEdit = isset($_GET['transaksi']);
 $isTambah = !isset($_GET['transaksi']);
 

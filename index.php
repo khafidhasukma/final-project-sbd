@@ -1,5 +1,18 @@
 <?php
 session_start();
+
+// ✅ Cek apakah user sudah login via MySQL user
+if (!isset($_SESSION['db_user'])) {
+    ?>
+    <script>
+        window.location.href = '/final-project-sbd/login/index.php';
+    </script>
+    <?php
+    exit;
+}
+
+$current_user = $_SESSION['client_name'];
+
 include './components/header.php';
 include './config/koneksi.php';
 
@@ -11,9 +24,12 @@ $jumlahPenjualan = $conn->query("SELECT COUNT(*) as total FROM t_jual")->fetch_a
 <div class="fullpage-landing">
   <div class="container dashboard-container">
     <h1 class="fs-2 fw-bold">Dashboard Inventori</h1>
+    <p class="text-muted">Login sebagai: <strong><?= htmlspecialchars($current_user) ?></strong></p>
+
     <div class="landing-text">
-    Selamat Datang Di Sistem Inventori
+      Selamat Datang Di Sistem Inventori
     </div>
+
     <div class="row g-4 mt-4">
       <!-- total stok -->
       <div class="col-md-4">
@@ -49,6 +65,5 @@ $jumlahPenjualan = $conn->query("SELECT COUNT(*) as total FROM t_jual")->fetch_a
     </div>
   </div>
 </div>
-
 
 <?php include './components/footer.php'; ?>

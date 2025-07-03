@@ -1,10 +1,21 @@
 <?php
 session_start();
+
+// ✅ Cek apakah sudah login via MySQL user
+if (!isset($_SESSION['db_user'])) {
+    ?>
+    <script>
+        window.location.href = '/final-project-sbd/login/index.php';
+    </script>
+    <?php
+    exit;
+}
+
+$current_user = $_SESSION['client_name'];
+
 $root = $_SERVER['DOCUMENT_ROOT'] . '/final-project-sbd';
 include $root . '/components/header.php';
 include $root . '/config/koneksi.php';
-
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
 
 // Auto-unlock jika dikunci > 5 menit
 $now = date('Y-m-d H:i:s');
@@ -30,6 +41,7 @@ $conn->query("UPDATE global_lock
     <div>
       <h1 class="fs-3 fw-bold">Daftar Stok Barang</h1>
       <p>Berikut adalah daftar stok barang saat ini.</p>
+      <p class="text-muted">Login sebagai: <strong><?= htmlspecialchars($current_user) ?></strong></p>
     </div>
     <a href="lock-create.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Tambah
       Data</a>
@@ -67,7 +79,7 @@ $conn->query("UPDATE global_lock
         $no = 1;
         if ($result->num_rows > 0):
           while ($row = $result->fetch_assoc()):
-            $locked = ($row['is_locked'] == 1 && $row['locked_by'] !== $user);
+            $locked = ($row['is_locked'] == 1 && $row['locked_by'] !== $current_user);
         ?>
         <tr>
           <td><?= $no++ ?></td>
@@ -77,8 +89,8 @@ $conn->query("UPDATE global_lock
           <td><?= $row['jml_stok'] ?></td>
           <td class="d-flex gap-2 align-items-center">
             <a href="show.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
-            <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning">Edit</a>
-            <a href="lock-delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-danger">
+            <a href="create-edit.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-warning" <?= $locked ? 'disabled' : '' ?>>Edit</a>
+            <a href="lock-delete.php?kode=<?= $row['kode_brg'] ?>" class="btn btn-sm btn-danger" <?= $locked ? 'disabled' : '' ?>>
               Hapus
             </a>
           </td>
@@ -123,7 +135,7 @@ if (isset($_GET['delete'])):
 
   if (!$data) {
     $_SESSION['error'] = "Data $kode sudah dihapus.";
-    header("Location: index.php");
+    header("Location: /final-project-sbd/index.php");
     exit;
   }
 ?>

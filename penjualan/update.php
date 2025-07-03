@@ -6,7 +6,7 @@ $transaksi = $_POST['kd_trans'] ?? '';
 $tanggal   = $_POST['tgl_trans'] ?? '';
 $kode      = $_POST['kode_brg'] ?? '';
 $jml_jual  = (int) ($_POST['jml_jual'] ?? 0);
-$user      = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user      = $_SESSION['username'] ?? $_SESSION['client_name'];
 
 try {
   // 🚫 Validasi input jual

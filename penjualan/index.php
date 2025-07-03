@@ -5,7 +5,7 @@ $root = $_SERVER['DOCUMENT_ROOT'] . '/final-project-sbd';
 include $root . '/components/header.php';
 include $root . '/config/koneksi.php';
 
-$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['username'] ?? $_SESSION['client_name'];
 
 // ⏰ Auto-unlock global lock
 $conn->query("UPDATE global_lock 

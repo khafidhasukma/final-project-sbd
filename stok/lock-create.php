@@ -3,7 +3,7 @@ session_start();
 include '../config/koneksi.php';
 
 // Gunakan IP sebagai identitas user
-$username = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$username = $_SESSION['client_name'];
 
 // Ambil data global_lock untuk stok-tambah
 $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");

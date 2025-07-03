@@ -2,7 +2,7 @@
 session_start();
 include '../config/koneksi.php';
 
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['client_name'];
 $kode = $_GET['kode'] ?? '';
 
 // Unlock MODE EDIT

@@ -2,7 +2,7 @@
 session_start();
 include '../config/koneksi.php';
 
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['client_name'];
 $id = $_GET['id'] ?? '';
 
 if (!$id) {

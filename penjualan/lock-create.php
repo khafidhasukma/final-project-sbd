@@ -2,7 +2,7 @@
 session_start();
 include '../config/koneksi.php';
 
-$user = $_SESSION['username'] ?? 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['username'] ?? $_SESSION['client_name'];
 
 // Cek lock
 $q = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'");

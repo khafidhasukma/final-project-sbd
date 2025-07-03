@@ -1,9 +1,14 @@
 <?php 
 session_start();
+if (!isset($_SESSION['db_user'])) {
+  header("Location: /login/index.php");
+  exit;
+}
+
 include '../components/header.php';
 include '../config/koneksi.php';
 
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$client_name = $_SESSION['client_name']; // nama user MySQL
 
 $isEdit = isset($_GET['kode']);
 $isTambah = isset($_GET['mode']) && $_GET['mode'] === 'tambah';
@@ -20,15 +25,15 @@ if ($isTambah) {
   $cek = $conn->query("SELECT * FROM global_lock WHERE module = 'stok-tambah'");
   $lock = $cek->fetch_assoc();
 
-  if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $user) {
-    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain.";
+  if ($lock['is_locked'] == 1 && $lock['locked_by'] !== $client_name) {
+    $_SESSION['error'] = "Form tambah data sedang digunakan oleh user lain: <b>{$lock['locked_by']}</b>.";
     header("Location: index.php");
     exit;
   }
 
   // Lock form tambah
   $conn->query("UPDATE global_lock 
-                SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                SET is_locked = 1, locked_by = '$client_name', locked_at = NOW() 
                 WHERE module = 'stok-tambah'");
 }
 
@@ -44,15 +49,15 @@ if ($isEdit) {
 
   $data = $result->fetch_assoc();
 
-  if ($data['is_locked'] == 1 && $data['locked_by'] !== $user) {
-    $_SESSION['error'] = "Data sedang digunakan oleh user lain.";
+  if ($data['is_locked'] == 1 && $data['locked_by'] !== $client_name) {
+    $_SESSION['error'] = "Data sedang digunakan oleh user lain: <b>{$data['locked_by']}</b>.";
     header("Location: index.php");
     exit;
   }
 
   // Lock record
   $conn->query("UPDATE stok 
-                SET is_locked = 1, locked_by = '$user', locked_at = NOW() 
+                SET is_locked = 1, locked_by = '$client_name', locked_at = NOW() 
                 WHERE kode_brg = '$kode'");
 }
 ?>
@@ -60,7 +65,7 @@ if ($isEdit) {
 <div class="container mt-5">
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
-      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a></li>
       <li class="breadcrumb-item"><a href="/final-project-sbd/stok/index.php">Daftar Stok Barang</a></li>
       <li class="breadcrumb-item active" aria-current="page"><?= $isEdit ? 'Edit Stok' : 'Tambah Stok' ?></li>
     </ol>
@@ -108,7 +113,6 @@ if ($isEdit) {
 
           <a href="cancel.php<?= $isEdit ? '?kode=' . $data['kode_brg'] : '' ?>" class="btn btn-secondary">Batal</a>
         </div>
-
       </form>
     </div>
   </div>

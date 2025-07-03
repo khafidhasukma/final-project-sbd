@@ -1,8 +1,13 @@
 <?php
 session_start();
+if (!isset($_SESSION['db_user'])) {
+  header("Location:  /final-project-sbd/login/index.php");
+  exit;
+}
+
 include '../config/koneksi.php';
 
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$client_name = $_SESSION['client_name']; // nama client dari login
 
 $kode   = $_POST['kode_brg'] ?? '';
 $nama   = $_POST['nama_brg'] ?? '';
@@ -21,8 +26,10 @@ try {
   // Jalankan prosedur tambah
   $conn->query("CALL insert_stok('$kode', '$nama', '$satuan', $stok)");
 
-  // Unlock global_lock setelah tambah
-  $conn->query("UPDATE global_lock SET is_locked = 0, locked_by = NULL, locked_at = NULL WHERE module = 'stok-tambah' AND locked_by = '$user'");
+  // Lepas kunci global_lock setelah tambah
+  $conn->query("UPDATE global_lock 
+                SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+                WHERE module = 'stok-tambah' AND locked_by = '$client_name'");
 
   $_SESSION['success'] = "Data berhasil ditambahkan.";
   header("Location: index.php");

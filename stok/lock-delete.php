@@ -2,7 +2,7 @@
 session_start();
 include '../config/koneksi.php';
 
-$user = 'anonymous@' . $_SERVER['REMOTE_ADDR'];
+$user = $_SESSION['client_name'];
 
 if (!isset($_GET['kode'])) {
   header("Location: index.php");
@@ -21,7 +21,7 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 if ($row['is_locked'] == 1 && $row['locked_by'] !== $user) {
-  $_SESSION['error'] = "Data sedang digunakan oleh user lain.";
+  $_SESSION['error'] = "Data sedang digunakan oleh user lain: $row[locked_by].";
   header("Location: index.php");
   exit;
 }
