@@ -24,7 +24,7 @@ $jumlahPenjualan = $conn->query("SELECT COUNT(*) as total FROM t_jual")->fetch_a
 <div class="fullpage-landing">
   <div class="container dashboard-container">
     <h1 class="fs-2 fw-bold">Dashboard Inventori</h1>
-    <p class="text-muted">Login sebagai: <strong><?= htmlspecialchars($current_user) ?></strong></p>
+    
 
     <div class="landing-text">
       Selamat Datang Di Sistem Inventori

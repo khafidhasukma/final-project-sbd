@@ -1,25 +1,32 @@
 <?php
 session_start();
 
+// ✅ Cek apakah sudah login via MySQL user
+if (!isset($_SESSION['db_user'])) {
+    ?>
+    <script>
+        window.location.href = '/final-project-sbd/login/index.php';
+    </script>
+    <?php
+    exit;
+}
+
+$current_user = $_SESSION['client_name'];
+
 $root = $_SERVER['DOCUMENT_ROOT'] . '/final-project-sbd';
 include $root . '/components/header.php';
 include $root . '/config/koneksi.php';
 
-$user = $_SESSION['username'] ?? $_SESSION['client_name'];
+// Auto-unlock jika dikunci > 5 menit
+$now = date('Y-m-d H:i:s');
+$conn->query("UPDATE t_jual SET is_locked = 0, locked_by = NULL, locked_at = NULL 
+              WHERE is_locked = 1 AND TIMESTAMPDIFF(MINUTE, locked_at, '$now') >= 5");
 
-// ⏰ Auto-unlock global lock
 $conn->query("UPDATE global_lock 
               SET is_locked = 0, locked_by = NULL, locked_at = NULL 
               WHERE module = 'penjualan-tambah' 
               AND is_locked = 1 
               AND TIMESTAMPDIFF(MINUTE, locked_at, NOW()) >= 5");
-
-// ⏰ Auto-unlock t_jual record
-$now = date('Y-m-d H:i:s');
-$conn->query("UPDATE t_jual 
-              SET is_locked = 0, locked_by = NULL, locked_at = NULL 
-              WHERE is_locked = 1 
-              AND TIMESTAMPDIFF(MINUTE, locked_at, '$now') >= 5");
 ?>
 
 <div class="container mt-5">
@@ -34,14 +41,8 @@ $conn->query("UPDATE t_jual
     <div>
       <h1 class="fs-3 fw-bold">Daftar Transaksi Penjualan</h1>
       <p>Berikut adalah daftar transaksi penjualan saat ini.</p>
+      <p class="text-muted">Login sebagai: <strong><?= htmlspecialchars($current_user) ?></strong></p>
     </div>
-
-    <?php
-    $dummyCheck = $conn->query("SELECT * FROM global_lock WHERE module = 'penjualan-tambah'");
-    $dummy = $dummyCheck->fetch_assoc();
-    $lockedBy = $dummy['locked_by'] ?? '';
-    ?>
-
     <a href="lock-create.php" class="btn" style="font-weight: bold; background-color: #6b91e4; color: white;">
       Tambah Transaksi
     </a>
@@ -79,7 +80,7 @@ $conn->query("UPDATE t_jual
         $no = 1;
         if ($result->num_rows > 0):
           while ($row = $result->fetch_assoc()):
-            $locked = $row['is_locked'] == 1 && $row['locked_by'] !== $user;
+            $locked = ($row['is_locked'] == 1 && $row['locked_by'] !== $current_user);
         ?>
         <tr>
           <td><?= $no++ ?></td>
@@ -89,14 +90,33 @@ $conn->query("UPDATE t_jual
           <td><?= $row['jml_jual'] ?></td>
           <td class="d-flex gap-2 align-items-center">
             <a href="show.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-info text-white">Detail</a>
-            <a href="create-edit.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-warning">Edit</a>
-            <a href="lock-delete.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-danger">
+            <a href="create-edit.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-warning" <?= $locked ? 'disabled' : '' ?>>Edit</a>
+            <a href="lock-delete.php?transaksi=<?= $row['kd_trans'] ?>" class="btn btn-sm btn-danger" <?= $locked ? 'disabled' : '' ?>>
               Hapus
             </a>
           </td>
         </tr>
 
-        <!-- Modal Delete jika pakai auto-show -->
+        <!-- Modal Delete -->
+        <div class="modal fade" id="deleteModal<?= $row['kd_trans'] ?>" tabindex="-1"
+          aria-labelledby="deleteModalLabel<?= $row['kd_trans'] ?>" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel<?= $row['kd_trans'] ?>">Hapus Transaksi?</h1>
+                <a href="cancel.php?id=<?= $row['kd_trans'] ?>" class="btn-close" aria-label="Tutup"></a>
+              </div>
+              <div class="modal-body text-center">
+                <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
+                <p>Apakah Anda yakin ingin menghapus <strong><?= $row['kd_trans'] ?></strong>?</p>
+              </div>
+              <div class="modal-footer">
+                <a href="cancel.php?id=<?= $row['kd_trans'] ?>" class="btn btn-secondary">Batal</a>
+                <a href="delete.php?id=<?= $row['kd_trans'] ?>" class="btn btn-danger">Hapus</a>
+              </div>
+            </div>
+          </div>
+        </div>
         <?php endwhile; else: ?>
         <tr>
           <td colspan="6" class="text-center text-muted py-4">Belum ada data Transaksi.</td>
@@ -107,43 +127,25 @@ $conn->query("UPDATE t_jual
   </div>
 </div>
 
-<?php if (isset($_GET['delete'])):
+<?php
+// Auto-tampilkan modal jika redirect dari lock-delete.php
+if (isset($_GET['delete'])):
   $kode = $_GET['delete'];
   $res = $conn->query("SELECT * FROM t_jual WHERE kd_trans = '$kode'");
   $data = $res->fetch_assoc();
 
   if (!$data) {
-    $_SESSION['error'] = "Data transaksi $kode sudah dihapus oleh user lain.";
-    header("Location: index.php");
+    $_SESSION['error'] = "Data $kode sudah dihapus.";
+    header("Location: /final-project-sbd/penjualan/index.php");
     exit;
   }
 ?>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-  const modal = new bootstrap.Modal(document.getElementById('deleteModalAuto'));
+  const modal = new bootstrap.Modal(document.getElementById('deleteModal<?= $data['kd_trans'] ?>'));
   modal.show();
 });
 </script>
-
-<!-- Modal Auto Delete -->
-<div class="modal fade" id="deleteModalAuto" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hapus Transaksi?</h5>
-        <a href="cancel.php?id=<?= $data['kd_trans'] ?>" class="btn-close"></a>
-      </div>
-      <div class="modal-body text-center">
-        <img src="/final-project-sbd/img/ex.jpg" alt="Peringatan" style="width: 90px; margin-bottom: 15px;">
-        <p>Yakin ingin menghapus <strong><?= $data['kd_trans'] ?></strong>?</p>
-      </div>
-      <div class="modal-footer">
-        <a href="cancel.php?id=<?= $data['kd_trans'] ?>" class="btn btn-secondary">Batal</a>
-        <a href="delete.php?id=<?= $data['kd_trans'] ?>" class="btn btn-danger">Hapus</a>
-      </div>
-    </div>
-  </div>
-</div>
 <?php endif; ?>
 
 <?php include $root . '/components/footer.php'; ?>

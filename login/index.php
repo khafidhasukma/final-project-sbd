@@ -1,7 +1,7 @@
 <?php
 session_start();
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// Kalau sudah login, langsung redirect
 if (isset($_SESSION['db_user'])) {
   header("Location: /final-project-sbd/index.php");
   exit;
@@ -13,23 +13,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $db_user = trim($_POST['db_user'] ?? '');
   $db_pass = $_POST['db_pass'] ?? '';
 
-  // Coba koneksi ke database
-  $test_conn = @new mysqli('localhost', $db_user, $db_pass, 'inventori_uas');
-
-  if ($test_conn->connect_error) {
-    $error = "❌ Login gagal: Username atau password salah.";
-  } else {
-    // Simpan user & password ke session
-    $_SESSION['db_user'] = $db_user;
-    $_SESSION['db_pass'] = $db_pass;
-    $_SESSION['client_name'] = $db_user; // nama client dipakai untuk locked_by
-
-    $test_conn->close(); // tutup koneksi test
-    header("Location: /final-project-sbd/index.php");
-    exit;
+  try {
+    $test_conn = new mysqli('localhost', $db_user, $db_pass, 'inventori_uas');
+    
+    if ($test_conn->connect_errno === 0) {
+      $_SESSION['db_user'] = $db_user;
+      $_SESSION['db_pass'] = $db_pass;
+      $_SESSION['client_name'] = $db_user;
+      header("Location: /final-project-sbd/index.php");
+      exit;
+    }
+  } catch (mysqli_sql_exception $e) {
+    $error = "❌ Akses ditolak. User <b>$db_user</b> tidak memiliki izin ke database.";
   }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>

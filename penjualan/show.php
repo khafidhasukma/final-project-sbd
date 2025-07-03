@@ -9,8 +9,11 @@ if (!isset($_GET['transaksi'])) {
   exit;
 }
 
-$kode = $_GET['transaksi'];
-$result = $conn->query("SELECT t.*, s.nama_brg FROM t_jual t JOIN stok s ON t.kode_brg = s.kode_brg WHERE kd_trans = '$kode'");
+$kode = $conn->real_escape_string($_GET['transaksi']);
+$result = $conn->query("SELECT t.*, s.nama_brg 
+                        FROM t_jual t 
+                        JOIN stok s ON t.kode_brg = s.kode_brg 
+                        WHERE kd_trans = '$kode'");
 
 if ($result->num_rows === 0) {
   $_SESSION['error'] = "Transaksi dengan kode $kode tidak ditemukan.";
@@ -25,7 +28,7 @@ $data = $result->fetch_assoc();
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb align-items-center">
-      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a>
+      <li class="breadcrumb-item"><a href="/final-project-sbd/index.php">Home</a></li>
       <li class="breadcrumb-item"><a href="/final-project-sbd/penjualan/index.php">Daftar Penjualan</a></li>
       <li class="breadcrumb-item active" aria-current="page">Detail Transaksi Penjualan</li>
     </ol>
@@ -50,7 +53,7 @@ $data = $result->fetch_assoc();
             </div>
           </div>
         </div>
-        
+
         <div class="card-body py-4">
           <div class="row g-4">
             <!-- Kode Transaksi -->
@@ -113,20 +116,21 @@ $data = $result->fetch_assoc();
                     <i class="fas fa-shopping-cart" style="color: #364C84; font-size: 2rem;"></i>
                   </div>
                   <small class="text-muted d-block">Jumlah Terjual</small>
-                  <h3 class="fw-bold mb-0" style="color: #364C84;"><?= $data['jml_jual'] ?> <small class="fs-6 text-muted">unit</small></h3>
+                  <h3 class="fw-bold mb-0" style="color: #364C84;">
+                    <?= $data['jml_jual'] ?> <small class="fs-6 text-muted">unit</small>
+                  </h3>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div class="card-footer bg-white border-top-0 py-4">
           <div class="d-flex justify-content-between align-items-center">
             <div class="text-muted">
               <small><i class="fas fa-info-circle me-1"></i> Data transaksi penjualan</small>
             </div>
-            <a href="index.php" class="btn" style="font-weight: bold;background-color: #6b91e4; color: white;">Kembali</a>
-            </a>
+            <a href="index.php" class="btn" style="font-weight: bold; background-color: #6b91e4; color: white;">Kembali</a>
           </div>
         </div>
       </div>
